@@ -461,7 +461,6 @@ DEPENDENCIES
   mini_racer (~> 0.2)
   minitest-reporters
   momentjs-rails (~> 2.20)
-  nokogiri (>= 1.10.4)
   omniauth-facebook (~> 6.0)
   pagy (~> 3.7.5)
   paper_trail (~> 10.3)

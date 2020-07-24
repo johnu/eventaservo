@@ -106,16 +106,14 @@ class EventsController < ApplicationController
   end
 
   def importi
-    datumoj = Importilo.new(params[:url]).datumoj
-    if datumoj # Signifas ke la importado sukcesi kolekti informojn kaj eraroj ne troviĝis
-      evento            = Event.new(datumoj)
-      evento.user_id    = current_user.id
-      evento.specolisto   = 'Alia'
-      evento.import_url = params[:url]
+    evento = Event.new(user_id: current_user.id, specolisto: "Alia")
+
+    Importilo.new(params[:url]).al_evento(evento)
+
+    if evento.valid?
       evento.save!
       redirect_to event_url(evento.code)
     else
-      # Eraro okazis
       redirect_to importi_url, flash: { error: 'Importado malsukcesis' }
     end
   end
