@@ -53,4 +53,32 @@ class EventTest < ActiveSupport::TestCase
     end
   end
 
+  test 'api de gxisdatigo' do
+    lando = create(:lando, :kanado)
+    horzono = "Canada/Eastern"
+    evento = Event.new(user: User.last,
+                       country: lando,
+                       title: "Esperanto-Toronto: Babilrondo",
+                       description: "Babilrondo",
+                       city: "Toronto",
+                       date_start: Time.find_zone("UTC").parse("2019-09-02 10:00:00"),
+                       date_end: Time.find_zone("UTC").parse("2019-09-02 13:30:00"),
+                       time_zone: "Canada/Eastern",
+                       latitude: 43.66590881347656,
+                       longitude: -79.38521575927734,
+                       site: "https://www.meetup.com/",
+                       import_url: "http://www.meetup.com")
+    evento.save!
+
+    VCR.use_cassette "meetup_success" do
+      Importilo.new('https://www.meetup.com/Esperanto-Toronto/events/nbplfqyzmbfb/').al_evento(evento)
+
+      assert_equal evento.changes.keys.sort, ["address", "content", "date_end", "date_start", "description", "import_url", "latitude", "longitude", "site", "time_zone", "title"]
+
+      assert_equal evento.changes["address"], [nil, "Aroma Espresso Bar,  618 Yonge Street"]
+      assert_equal evento.changes["date_start"], [Time.find_zone("UTC").parse("2019-09-02 14:00:00"), Time.find_zone("UTC").parse("2019-09-03 22:00:00")]
+      assert_equal evento.changes["date_end"], [Time.find_zone("UTC").parse("2019-09-02 17:30:00"), Time.find_zone("UTC").parse("2019-09-03 23:30:00"),]
+    end
+
+  end
 end
